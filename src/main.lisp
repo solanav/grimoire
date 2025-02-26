@@ -1,17 +1,12 @@
-(uiop:define-package grimoire
-  (:use #:cl))
+(defpackage grimoire
+  (:use #:cl)
+  (:local-nicknames (:a :alexandria)))
 (in-package #:grimoire)
 
-(defparameter *default-users* 
-  (remove-if #'alexandria:emptyp 
-             (str:lines 
-              (alexandria:read-file-into-string
-               (asdf:system-relative-pathname
-                :grimoire "data/default-users.txt")))))
+(defparameter *default-users* (load-data "default-users.txt"))
+(defparameter *interesting-files* (load-data "interesting-files.txt"))
 
-(defparameter *read-function* nil)
-(defparameter *exec-function* nil)
-(defparameter *write-function* nil)
+(defparameter *capacities* (make-hash-table :test #'equal))
 
 ;; Machine functions
 
@@ -23,6 +18,14 @@
 
 ;; Generic functions
 
+(defun load-data (system-relative-path)
+  "load a data/file.txt into a list"
+  (remove-if #'alexandria:emptyp 
+             (str:lines 
+              (alexandria:read-file-into-string
+               (asdf:system-relative-pathname
+                :grimoire (merge-pathnames "data/" system-relative-path))))))
+
 (defmacro grm/defun (name capacities parameters &body body)
   "create a function and check capacities at the start"
   `(defun ,name ,parameters
@@ -33,37 +36,49 @@
 
 (defun grm/can (type)
   "check if we have a capacity"
-  (flet ((assert-not-null (e) 
-           (assert (not (null e)) nil
-                   (format nil "Missing capacity for ~a" type))))
-    (alexandria:switch (type)
-      (:read (assert-not-null *read-function*))
-      (:exec (assert-not-null *exec-function*))
-      (:write (assert-not-null *write-function*)))))
+  (assert (not (null (gethash type *capacities*)))
+          nil
+          (format nil "Missing capacity for ~a" type)))
 
 (defun grm/register (type function)
   "register a function as a capacity"
-  (alexandria:switch (type)
-    (:read (setf *read-function* function))
-    (:exec (setf *exec-function* function))
-    (:write (setf *write-function* function))))
+  (setf (gethash type *capacities*) function))
 
-(defun grm/read (path)
+(defun grm/read-into-string (path)
   "read a file"
   (funcall *read-function* path))
 
+(defun grm/download (path name)
+  "read a file"
+  (ignore-errors 
+    (a:write-byte-vector-into-file 
+     (funcall *read-function* path)
+     (merge-pathnames 
+      (asdf:system-relative-pathname
+       :grimoire (merge-pathnames "output/" name))))
+    t))
+
+(grm/defun grm/system-info (:read) ()
+           "list all the users from /etc/passwd"
+           (grm/read-into-string "/etc/os-release"))
+
 (grm/defun grm/all-users (:read) ()
-  "list all the users from /etc/passwd"
-  (loop for line in (str:lines (grm/read "/etc/passwd"))
-        if (not (alexandria:emptyp line))
-        collect (car (str:split ":" line))))
+           "list all the users from /etc/passwd"
+           (loop for line in (str:lines (grm/read-into-string "/etc/passwd"))
+                 if (not (alexandria:emptyp line))
+                 collect (car (str:split ":" line))))
 
 (grm/defun grm/users (:read) ()
-  "list the users that are not default"
-  (let ((all-users (grm/all-users)))
-    (remove-if #'(lambda (u) (member u *default-users* :test #'equal)) 
-               all-users)))
+           "list the users that are not default"
+           (let ((all-users (grm/all-users)))
+             (remove-if #'(lambda (u) (member u *default-users* :test #'equal)) 
+                        all-users)))
 
 (grm/defun grm/user-flag (:read) ()
-  (loop for user in (grm/users)
-        return (str:trim (grm/read (format nil "/home/~a/user.txt" user)))))
+           (loop for user in (grm/users)
+                 return (str:trim 
+                         (grm/read-into-string
+                          (format nil "/home/~a/user.txt" user)))))
+
+(grm/defun interesting-files (:read) ()
+           (loop for path in *interesting-paths*))

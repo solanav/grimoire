@@ -2,7 +2,11 @@
   :version "0.0.1"
   :author ""
   :license ""
-  :depends-on ()
+  :depends-on ("alexandria"
+               "serapeum"
+               "str"
+               "dexador"
+               "trivial-utf-8")
   :components ((:module "src"
                 :components
                 ((:file "main"))))
