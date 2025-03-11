@@ -6,20 +6,11 @@
                "serapeum"
                "str"
                "dexador"
-               "trivial-utf-8")
+               "trivial-utf-8"
+               "ironclad")
   :components ((:module "src"
-                :components
-                ((:file "main"))))
-  :description ""
-  :in-order-to ((test-op (test-op "grimoire/tests"))))
-
-(defsystem "grimoire/tests"
-  :author ""
-  :license ""
-  :depends-on ("grimoire"
-               "rove")
-  :components ((:module "tests"
-                :components
-                ((:file "main"))))
-  :description "Test system for grimoire"
-  :perform (test-op (op c) (symbol-call :rove :run c)))
+                :serial t
+                :components ((:file "package")
+                             (:file "utils")
+                             (:file "main"))))
+  :description "")
