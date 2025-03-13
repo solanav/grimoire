@@ -12,5 +12,7 @@
                 :serial t
                 :components ((:file "package")
                              (:file "utils")
+                             (:file "bytes")
+                             (:file "git")
                              (:file "main"))))
   :description "")
