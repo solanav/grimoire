@@ -1,0 +1,5 @@
+/etc/passwd
+/etc/hosts
+/etc/os-release
+/etc/config/apache/sites-available/000-default.conf
+/etc/config/nginx/sites-available/default
