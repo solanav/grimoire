@@ -53,8 +53,8 @@ In no particular order:
 
 - [ ] Package Grimoire with Lem so it can be used as a standalone tool.
 - [ ] Add an easy way to create POCs and export them so Grimoire can use them.
-- [ ] Add write utilities to Grimoire.
-- [ ] Add execute utilities to Grimoire.
+- [x] Add write utilities to Grimoire.
+- [x] Add execute utilities to Grimoire.
 - [ ] Add a more precise way of expressing capabilities and not just `:read`, `:write` and `:execute`.
 - [ ] Add a graph like representation of capabilities and how they can be chained together.
 - [ ] Add a way to easily share capabilities with other users.
@@ -62,3 +62,4 @@ In no particular order:
 - [ ] Add logging.
 - [ ] Add a way to easily create a report of the pentest.
 - [ ] Add some testing maybe.
+- [x] Add a deployable binary for persistance.
