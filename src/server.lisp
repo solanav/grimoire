@@ -47,12 +47,12 @@
               do (write-sequence buff output :end bytes))
         "ok"))))
 
-(defun start-server ()
+(defun server/start ()
   (hunchentoot:start *acceptor*))
 
-(defun stop-server ()
+(defun server/stop ()
   (hunchentoot:stop *acceptor*))
 
-(defun restart-server ()
+(defun server/restart ()
   (stop-server)
   (start-server))

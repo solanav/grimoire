@@ -1,4 +1,4 @@
-(in-package #:grimoire)
+(in-package :grimoire)
 
 (grm/defun system-info (:read) ()
   "list all the users from /etc/passwd"

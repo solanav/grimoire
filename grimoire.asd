@@ -20,7 +20,8 @@
                              (:file "utils")
                              (:file "bytes")
                              (:file "git")
-                             (:file "web")
+                             (:file "server")
+                             (:file "client")
                              (:file "main")
 
                              ;; Capabilities

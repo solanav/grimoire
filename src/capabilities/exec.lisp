@@ -1,4 +1,4 @@
-(in-package #:grimoire)
+(in-package :grimoire)
 
 (defparameter *current-dir* nil)
 
@@ -10,17 +10,17 @@
                               (str:replace-first "cd " "" command))))
       (grm/exec (format nil "cd ~a && ~a" *current-dir* command))))
 
-(defun fake-repl-prompt ()
+(defun fake-shell-prompt ()
   (format t "~%[~a]$ " *current-dir*)
   (force-output)
   (read-line))
 
-(grm/defun fake-repl (:exec) ()
-  "gives a 'fake' repl that allows for command execution and follows cd commands"
+(grm/defun fake-shell (:exec) ()
+  "gives a 'fake' shell that allows for command execution and follows cd commands"
   (setf *current-dir* (grm/exec "pwd"))
 
-  ;; repl
-  (loop for command = (fake-repl-prompt)
+  ;; shell
+  (loop for command = (fake-shell-prompt)
         if (equal command "exit") do (return)
         else do (format t "~a~%" (exec-keep-pwd command))))
 

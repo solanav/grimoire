@@ -1,4 +1,4 @@
-(in-package #:grimoire)
+(in-package :grimoire)
 
 (defun brute-force (url method usernames passwords)
   (loop for username in usernames
