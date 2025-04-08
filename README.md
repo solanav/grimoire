@@ -1,8 +1,12 @@
 # Grimoire
 
-Grimoire is a collection of utilities for facilitating the process of pentesting.
+Grimoire is a collection of utilities designed to facilitate reconnaissance, exploitation, persistence, and privilege escalation.
 
 It also includes tools to make the implementation of exploit POCs easier.
+
+## Screenshots
+
+![image](https://github.com/user-attachments/assets/ea321379-a96f-40e6-a285-7cf5c9af0955)
 
 ## Installation
 
