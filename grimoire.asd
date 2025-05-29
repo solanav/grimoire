@@ -23,6 +23,7 @@
                              (:file "server")
                              (:file "client")
                              (:file "main")
+                             (:file "derivation")
 
                              ;; Capabilities
                              (:module "capabilities"

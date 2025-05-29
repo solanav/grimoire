@@ -53,3 +53,6 @@
   (loop for line in (str:lines text)
         for (head . tail) = (str:split "=" line)
         collect (cons head (str:join "=" tail))))
+
+(defun yes? (bool)
+  (if bool "[YES]" "[NO]"))

