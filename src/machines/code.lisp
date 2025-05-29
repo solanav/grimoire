@@ -5,8 +5,8 @@
                       (jzon:parse 
                        (dex:post "http://10.129.28.225:5000/run_code"
                                  :content `(("code" . ,code))
-                                 :read-timeout 120)))))
-    (if (equal res "Use of restricted keywords is not allowed.")
+                                 read-timeout 120)))))
+    (if (string= res "Use of restricted keywords is not allowed.")
         "Not allowed" (str:trim res))))
 
 (defun code/obfuscate (string)
@@ -19,4 +19,4 @@
            (code/obfuscate command))))
 
 (defun code/read (file)
-  (code/exec (format nil "cat ~a" file)))
+  (use :exec (format nil "cat ~a" file)))

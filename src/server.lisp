@@ -7,12 +7,7 @@
    :port 5000))
 
 (defparameter *tool-dir* 
-  (merge-pathnames
-   "tools/" (asdf:system-source-directory :grimoire)))
-
-(defparameter *downloads-dir*
-  (merge-pathnames
-   "downloads/" (asdf:system-source-directory :grimoire)))
+  (asdf:system-relative-pathname :grimoire "tools/"))
 
 (easy-routes:defroute proxy ("/proxy/" :method :get) (url)
   "acts as a simple http proxy"
@@ -28,16 +23,17 @@
 
 (easy-routes:defroute uploads ("/upload/" :method :post) ()
   "saves uploaded files to *downloads-dir*"
-  (let ((file (hunchentoot:post-parameter "file"))
+  (let ((downloads-dir (project-path "downloads/"))
+        (file (hunchentoot:post-parameter "file"))
         (buff (make-array 4096 :element-type '(unsigned-byte 8))))
     (format t "[+] Downloading file ~a to ~a~%" 
             (car file)
-            (merge-pathnames (cadr file) *downloads-dir*))
+            (merge-pathnames (cadr file) downloads-dir))
     (with-open-file (input (car file)
                            :direction :input
                            :element-type '(unsigned-byte 8))
-      (ensure-directories-exist *downloads-dir*)
-      (with-open-file (output (merge-pathnames (cadr file) *downloads-dir*)
+      (ensure-directories-exist downloads-dir)
+      (with-open-file (output (merge-pathnames (cadr file) downloads-dir)
                               :direction :output
                               :if-exists :supersede
                               :if-does-not-exist :create

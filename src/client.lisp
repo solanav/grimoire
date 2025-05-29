@@ -7,8 +7,12 @@
 
 (defvar *element-type* '(unsigned-byte 8))
 
+(defun address->string (host)
+  (format nil "~{~a~^.~}" (coerce host 'list)))
+
 (defun fake-remote-shell-prompt (host port)
-  (format t "~%[~a:~a]$ " host port)
+  (format t "~%[~a:~a]$ " 
+          (address->string host) port)
   (force-output)
   (read-line))
 
@@ -77,14 +81,14 @@
 
     (trivial-utf-8:utf-8-bytes-to-string result)))
 
-(defun search-for-port (host &key (start 10000) (end 10010))
+(defun listen-on-available-port (host &key (start 10000) (end 10010))
   (loop for port from start upto end
         for socket = (ignore-errors (usocket:socket-listen host port))
         if socket do (return (values socket port))
         finally (error "[!] No port found")))
 
 (defun client/listen ()
-  (multiple-value-bind (socket port) (search-for-port *client-host*)
+  (multiple-value-bind (socket port) (listen-on-available-port *client-host*)
     (format t "[+] Listening on ~a:~a~%" *client-host* port)
     
     (let* ((connection (usocket:socket-accept 
@@ -106,7 +110,10 @@
             do (format t "[+] Response: \"~a\"~%" 
                        (recv-data connection))
             
-            until (equal command "(quit)"))
+            until (string= command "(quit)"))
       
-      (usocket:socket-shutdown connection :io)
+      ;; it may fail if the connection was closed by the peer
+      (ignore-errors 
+        (usocket:socket-shutdown connection :io))
+      
       (usocket:socket-close connection))))
