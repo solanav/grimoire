@@ -15,7 +15,7 @@
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
-                             
+
                              ;; Utils
                              (:file "utils")
                              (:file "bytes")
@@ -28,7 +28,7 @@
                              (:module "capabilities"
                               :components ((:file "read")
                                            (:file "exec")))
-                             
+
                              ;; Machine specific functions
                              (:module "machines"
                               :components ((:file "titanic")

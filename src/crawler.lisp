@@ -4,7 +4,7 @@
 
 (defun url-append-file (uri file)
   (let* ((path (quri:uri-path uri)))
-    (quri:make-uri 
+    (quri:make-uri
      :defaults uri
      :path (format nil "~a/~a"
                    (str:trim-right path :char-bag "/")
@@ -13,7 +13,7 @@
 (defun url-to-absolute (uri relative-link)
   (if (cl-ppcre:scan "(http|ftp|email|mail|ssh)s?:\/\/" relative-link)
       (quri:uri relative-link)
-      (quri:make-uri 
+      (quri:make-uri
        :defaults uri
        :path (if (str:starts-with? "/" relative-link)
                  relative-link
@@ -24,7 +24,7 @@
 (defun crawler/links (uri)
   "extract the links of the URI's HTML"
   (let ((base-uri (quri:uri uri)))
-    (loop :for found-url 
+    (loop :for found-url
           :across (lquery:$ (lquery:initialize (dex:get uri)) "a" (attr :href))
           :if (not (str:starts-with? "?" found-url))
           :collect (url-to-absolute base-uri found-url))))

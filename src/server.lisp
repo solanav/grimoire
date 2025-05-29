@@ -1,12 +1,12 @@
 (in-package :grimoire)
 
-(defparameter *acceptor* 
+(defparameter *acceptor*
   (make-instance
    'easy-routes:easy-routes-acceptor
    :address "0.0.0.0"
    :port 5000))
 
-(defparameter *tool-dir* 
+(defparameter *tool-dir*
   (asdf:system-relative-pathname :grimoire "tools/"))
 
 (easy-routes:defroute proxy ("/proxy/" :method :get) (url)
@@ -26,7 +26,7 @@
   (let ((downloads-dir (project-path "downloads/"))
         (file (hunchentoot:post-parameter "file"))
         (buff (make-array 4096 :element-type '(unsigned-byte 8))))
-    (format t "[+] Downloading file ~a to ~a~%" 
+    (format t "[+] Downloading file ~a to ~a~%"
             (car file)
             (merge-pathnames (cadr file) downloads-dir))
     (with-open-file (input (car file)

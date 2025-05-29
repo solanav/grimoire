@@ -36,11 +36,11 @@
   (setf *host-ip* (prompt "Host IP"))
 
   ;; derived
-  (setf *project-dir* 
+  (setf *project-dir*
         (merge-pathnames
          (str:concat *project-name* "/")
          *project-root*))
-  
+
   nil)
 
 ;; TODO
@@ -62,7 +62,7 @@
 (defmacro find-requirements (&body body)
   "find the required capabilities in the body of a function"
   (labels ((aux (expr)
-             (when (and expr (listp expr)) 
+             (when (and expr (listp expr))
                (cons (is-use expr)
                      (append (aux (car expr))
                              (aux (cdr expr)))))))
@@ -89,13 +89,13 @@
 (defmacro define-derivation (name (from to) &body body)
   (let ((string-name (string-upcase name)))
     `(setf (gethash ,string-name *derivations*)
-           (make-derivation 
+           (make-derivation
             :name ,string-name
             :from ,from
             :to ,to
             :function (lambda (f) ,@body)))))
 
-(find-requirements 
+(find-requirements
  (define-capability :exec planning (command)
    (let ((output "/tmp/grafana-cmd-output"))
      (planning/query (fmt *planning/exec-query* command output))

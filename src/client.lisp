@@ -11,7 +11,7 @@
   (format nil "~{~a~^.~}" (coerce host 'list)))
 
 (defun fake-remote-shell-prompt (host port)
-  (format t "~%[~a:~a]$ " 
+  (format t "~%[~a:~a]$ "
           (address->string host) port)
   (force-output)
   (read-line))
@@ -38,10 +38,10 @@
         (len (length buffer)))
     ;; payload cannot be bigger than 2**32 bytes (4GB)
     (assert (< len *max-payload-length*))
-    
+
     ;; write the length of the payload
     (write-sequence (int->bytes len 4) stream)
-    
+
     ;; write the payload
     (write-sequence buffer stream)
 
@@ -58,15 +58,15 @@
   (usocket:wait-for-input socket)
 
   (format t "[+] Starting to read...~%")
-  
+
   (let ((stream (usocket:socket-stream socket))
         (buffer (make-array *buffer-size*
                             :element-type *element-type*))
-        (result (make-array 0 
+        (result (make-array -1
                             :element-type *element-type*
                             :adjustable t
                             :fill-pointer t)))
-    
+
     (loop with payload-length = (read-payload-length stream)
           with total-read = 0
           for i = 0 then (1+ i)
@@ -90,30 +90,30 @@
 (defun client/listen ()
   (multiple-value-bind (socket port) (listen-on-available-port *client-host*)
     (format t "[+] Listening on ~a:~a~%" *client-host* port)
-    
-    (let* ((connection (usocket:socket-accept 
+
+    (let* ((connection (usocket:socket-accept
                         socket :element-type *element-type*))
            (peer-addr (usocket:get-peer-name connection))
            (peer-port (usocket:get-peer-port connection)))
-      
+
       (format t "[+] Closing original socket...~%")
       (usocket:socket-close socket)
-      
+
       (format t "[+] Connection received from ~a:~a~%"
               peer-addr peer-port)
 
       (loop for command = (fake-remote-shell-prompt peer-addr peer-port)
-            do (send-data connection 
+            do (send-data connection
                           (trivial-utf-8:string-to-utf-8-bytes
                            command))
-            
-            do (format t "[+] Response: \"~a\"~%" 
+
+            do (format t "[+] Response: \"~a\"~%"
                        (recv-data connection))
-            
+
             until (string= command "(quit)"))
-      
+
       ;; it may fail if the connection was closed by the peer
-      (ignore-errors 
+      (ignore-errors
         (usocket:socket-shutdown connection :io))
-      
+
       (usocket:socket-close connection))))

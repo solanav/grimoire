@@ -12,17 +12,17 @@
 
 (define-recipe users (:read) ()
   "list the users that are not default"
-  (remove-if 
+  (remove-if
    #'(lambda (u) (member u *default-users* :test #'string=))
    (all-users)))
 
 (define-recipe flag (:read) (&key username root)
   "try to read the flag from user home folders"
-  (flet ((try-for-flag (u) 
+  (flet ((try-for-flag (u)
            (format t "[+] Trying to read ~a's flag...~%" u)
            (ignore-errors
              (str:trim
-              (use :read (format nil "/home/~a/~a.txt" 
+              (use :read (format nil "/home/~a/~a.txt"
                                  u (if root "root" "user")))))))
     (if username
         (try-for-flag username)

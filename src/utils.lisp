@@ -35,7 +35,7 @@
 
 (defun random-string (length &optional charset)
   (let ((charset (or charset *alphanumeric*)))
-    (coerce 
+    (coerce
      (loop for i upto (1- length)
            collect (elt charset (random (length charset))))
      'string)))

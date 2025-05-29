@@ -17,7 +17,7 @@
   (s:dict
    :from "1729313027261"
    :queries (list
-             (s:dict 
+             (s:dict
               :datasource (s:dict
                            "name" "Expression"
                            "type" "__expr__"
@@ -38,16 +38,16 @@
             :cookie-jar *planning/cookies*))
 
 (defun planning/query (query)
-  (flet ((req (q) 
+  (flet ((req (q)
            (dex:post
-            *planning/api-query* 
+            *planning/api-query*
             :content (jzon:stringify (planning/payload q))
             :headers `(("Content-Type" . "application/json"))
             :cookie-jar *planning/cookies*)))
     (let ((response (handler-case (req query)
                       (dex:http-request-failed ()
                         (planning/login) (req query)))))
-      (@2 (jzon:parse response) 
+      (@2 (jzon:parse response)
           "results" "A" "frames" 0 "data" "values" 0 0))))
 
 (define-capability :read planning (file)

