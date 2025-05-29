@@ -86,28 +86,36 @@
             :provides ',provides
             :function (lambda ,args ,@body)))))
 
-(defun derivation/runnable? (name)
-  (let ((derivation (gethash (string-upcase name) *derivations*))
-        (capabilities (a:hash-table-keys *capabilities*)))
+(defun derivation/runnable? (derivation)
+  (let ((capabilities (a:hash-table-keys *capabilities*)))
     (loop for need in (derivation-needs derivation)
           always (member need capabilities))))
 
-(defun derivation/needed? (name)
-  (let ((derivation (gethash (string-upcase name) *derivations*))
-        (capabilities (a:hash-table-keys *capabilities*)))
+(defun derivation/needed? (derivation)
+  (let ((capabilities (a:hash-table-keys *capabilities*)))
     (loop for need in (derivation-provides derivation)
           never (member need capabilities))))
 
+(defun derivation/get (name)
+  (gethash name *derivations*))
+
 (defun derivation/list ()
-  (loop for derivation in (a:hash-table-keys *derivations*)
-        do (out "[+] Derivation \"~a\"~%" derivation )
-        do (out "    Runnable? ~a~%" (yes? (derivation/runnable? derivation)))
-        do (out "    Needed?   ~a~%" (yes? (derivation/needed? derivation)))))
+  (loop for name being the hash-keys in *derivations*
+        using (hash-value derivation)
+        do (out "[+] Derivation \"~a\"~%" 
+                (derivation-name derivation))
+        do (out "    Runnable? ~a (needs ~{:~a~^, ~})~%" 
+                (yes? (derivation/runnable? derivation))
+                (derivation-needs derivation))
+        do (out "    Needed?   ~a (provides ~{:~a~^, ~})~%~%"
+                (yes? (derivation/needed? derivation))
+                (derivation-provides derivation))))
 
 (defun derivation/run (name)
   (let ((derivation (gethash (string-upcase name) *derivations*)))
     (loop for provides in (derivation-provides derivation)
-          do (register provides (derivation-function derivation)))))
+          do (register provides (derivation-function derivation))
+          do (out "[+] Added new capability: :~a~%" provides))))
 
 ;; loot
 

@@ -34,7 +34,9 @@ You should then enter the package and start working on the system itself, rather
 
 - **Recipes**: Created using `define-recipe`. They use the capabilities available to do interesting or useful operations on the system. For example, the recipe `download-all` allows the user to download all files in a given remote path if the capacity to execute code is available to Grimoire.
     
-- **Loot**: Managed through the function `loot`. You can save loot by passing a key and a value, retrieve it by passing a key only or listing the loot available by calling the function without parameters.
+- **Derivations**: Created using `define-derivation`. They allow Grimoire to derive new capabilities from already implemented ones. For example, if you have both the read and blind execution capabilities, you will be able to derive the sighted execution through a derivation.
+    
+- **Loot**: Managed through the functions starting with `loot/*`. You can save loot by passing a key and a value, retrieve it by passing a key only or listing the loot available by calling the function without parameters.
 
 ## Usage
 
@@ -76,6 +78,51 @@ Grimoire now unlocks a bunch of functions that you can use to progress further, 
  ("BUG_REPORT_URL" . "https://bugs.launchpad.net/ubuntu/")
  ("PRIVACY_POLICY_URL" . "https://.../privacy-policy")
  ("UBUNTU_CODENAME" . "jammy"))
+```
+    
+If you now create another capability to do blind execution of code:
+
+```lisp
+(define-capability :blind-exec planning (command)
+  (send-request-to-vulnerable-server
+   (fmt *exploit* command)))
+```
+    
+So now if we check our current capabilities:
+```lisp
+(:READ :BLIND-EXEC)
+```
+    
+Running `derivation/list` will yield:
+```lisp
+[+] Derivation "LET-THERE-BE-LIGHT"
+    Runnable? [YES] (needs :READ, :BLIND-EXEC)
+    Needed?   [YES] (provides :EXEC)
+
+[+] Derivation "CAT"
+    Runnable? [NO] (needs :EXEC)
+    Needed?   [NO] (provides :READ)
+```
+    
+So lets run the first derivation in the REPL:
+```lisp
+GRIMOIRE> (derivation/run :let-there-be-light)
+[+] Added new capability: :EXEC
+```
+
+So lets test it with the `fake-shell` recipe:
+```lisp
+GRIMOIRE> (fake-shell)
+[/usr/share/grafana]$ ls
+LICENSE
+bin
+conf
+public
+
+[/usr/share/grafana]$ whoami
+root
+
+[/usr/share/grafana]$ exit
 ```
 
 ## Roadmap

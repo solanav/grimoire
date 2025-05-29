@@ -10,8 +10,10 @@
                             (str:replace-first "cd " "" command))))
       (use :exec (fmt "cd ~a && ~a" *current-dir* command))))
 
-(defun fake-shell-prompt ()
-  (out "~%[~a]$ " *current-dir*)
+(defun fake-shell-prompt (&optional (prepend-newline t))
+  (out "~a[~a]$ " 
+       (if prepend-newline #\Newline "")
+       *current-dir*)
   (force-output)
   (read-line))
 
@@ -20,7 +22,8 @@
   (setf *current-dir* (use :exec "pwd"))
 
   ;; shell
-  (loop for command = (fake-shell-prompt)
+  (loop for pnl = nil then t
+        for command = (fake-shell-prompt pnl)
         if (string= command "exit") do (return)
         else do (out "~a~%" (exec-keep-pwd command))))
 
