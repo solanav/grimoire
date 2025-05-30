@@ -1,12 +1,12 @@
 # Grimoire
 
-Grimoire is a collection of utilities designed to facilitate reconnaissance, exploitation, persistence, and privilege escalation.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/127f9116-e1d9-4ccc-9c22-ee17c3afda75"/>
+</p>
 
-It also includes tools to make the implementation of exploit POCs easier.
-
-## Screenshots
-
-![image](https://github.com/user-attachments/assets/ea321379-a96f-40e6-a285-7cf5c9af0955)
+<p align="center">
+  A collection of utilities designed to facilitate reconnaissance, exploitation, persistence, and privilege escalation (only for educational purposes).
+</p>
 
 ## Installation
 
