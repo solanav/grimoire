@@ -50,7 +50,7 @@
       (@2 (jzon:parse response)
           "results" "A" "frames" 0 "data" "values" 0 0))))
 
-(define-capability :read planning (file)
+(define-glyph :read CVE-2024-9264 (file)
   (let* ((text (str:replace-all
                 "\\x0A" (fmt "~%")
                 (planning/query
@@ -61,5 +61,5 @@
         (subseq text 0 text-len)
         "")))
 
-(define-capability :blind-exec planning (command)
+(define-glyph :blind-exec CVE-2024-9264 (command)
   (planning/query (fmt *planning/exec-query* command)))

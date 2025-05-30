@@ -30,13 +30,13 @@ CL-USER> (in-package :grimoire)
     
 ## Concepts
 
-- **Capability**: Created using `define-capability`. They expose some type of operation to the framework such as reading files, blind code execution or file uploads.
+- **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:READ) , blind code execution (:BLIND-EXEC), file uploads (:WRITE), etc.
 
-- **Recipes**: Created using `define-recipe`. They use the capabilities available to do interesting or useful operations on the system. For example, the recipe `download-all` allows the user to download all files in a given remote path if the capacity to execute code is available to Grimoire.
+- **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the recipe `download-all` allows the user to download all files in a given remote path if the glyph :EXEC is available to Grimoire.
     
-- **Derivations**: Created using `define-derivation`. They allow Grimoire to derive new capabilities from already implemented ones. For example, if you have both the read and blind execution capabilities, you will be able to derive the sighted execution through a derivation.
+- **Transmutations**: Created using `define-transmutation`. They allow Grimoire to derive new capabilities from already implemented ones. For example, if you have both the :READ and :BLIND-EXEC capabilities, you will be able to derive the :EXEC through a transmutation.
     
-- **Loot**: Managed through the functions starting with `loot/*`. You can save loot by passing a key and a value, retrieve it by passing a key only or listing the loot available by calling the function without parameters.
+- **Relics**: Managed through the functions starting with `relic/*`. A basic and global key-value store.
 
 ## Usage
 
@@ -45,10 +45,10 @@ Once you have Grimoire loaded, you can start using its utilities. First you shou
 If you find a way of reading files in the remote server for example, you can create a function called `read-CVE-2024-9264` that reads files from the remote server:
 
 ```lisp
-(define-capability :read read-CVE-2024-9264 (file)
+(define-glyph :read read-CVE-2024-9264 (file)
   (let* ((text (str:replace-all
                 "\\x0A" (fmt "~%")
-                (planning/query
+                (send-request-to-vulnerable-server
                  (fmt "SELECT content FROM read_blob(\"~a\")"
                       file))))
          (text-len (1- (length text))))
@@ -57,7 +57,7 @@ If you find a way of reading files in the remote server for example, you can cre
         "")))
 ```
 
-Grimoire now unlocks a bunch of functions that you can use to progress further, for example:
+Grimoire now unlocks a bunch of spells that you can use to progress further, for example:
 
 ```lisp
 GRIMOIRE> (all-users)

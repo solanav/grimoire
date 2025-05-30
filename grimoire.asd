@@ -15,24 +15,32 @@
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
-
-                             ;; Utils
+                             
+                             ;; utils
                              (:file "utils")
-                             (:file "bytes")
-                             (:file "git")
-                             (:file "server")
-                             (:file "client")
-                             (:file "main")
-                             (:file "derivation")
+                             
+                             ;; core
+                             (:file "relics")
+                             (:file "glyphs")
+                             (:file "spells")
+                             (:file "transmutations")
 
-                             ;; Capabilities
-                             (:module "capabilities"
-                              :components ((:file "read")
-                                           (:file "exec")))
+                             ;; modules
+                             (:module "modules"
+                              :components 
+                              ((:file "bytes")
+                               (:file "git")
+                               (:file "server")
+                               (:file "client")))
 
-                             ;; Machine specific functions
+                             ;; htb machines
                              (:module "machines"
-                              :components ((:file "titanic")
-                                           (:file "linkvortex")
-                                           (:file "code"))))))
+                              :components 
+                              ((:file "titanic")
+                               (:file "linkvortex")
+                               (:file "code")
+                               (:file "planning")))
+                             
+                             ;; Main
+                             (:file "main"))))
   :description "Pentesting interactive framework")

