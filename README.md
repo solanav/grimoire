@@ -32,9 +32,9 @@ CL-USER> (in-package :grimoire)
 
 - **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:READ) , blind code execution (:BLIND-EXEC), file uploads (:WRITE), etc.
 
-- **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the recipe `download-all` allows the user to download all files in a given remote path if the glyph :EXEC is available to Grimoire.
+- **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the spell `download-all` allows the user to download all files in a given remote path if the glyph :EXEC is available to Grimoire.
     
-- **Transmutations**: Created using `define-transmutation`. They allow Grimoire to derive new capabilities from already implemented ones. For example, if you have both the :READ and :BLIND-EXEC capabilities, you will be able to derive the :EXEC through a transmutation.
+- **Transmutations**: Created using `define-transmutation`. They allow Grimoire to derive new glyphs from already implemented ones. For example, if you have both the :READ and :BLIND-EXEC glyphs, you will be able to derive the :EXEC through a transmutation.
     
 - **Relics**: Managed through the functions starting with `relic/*`. A basic and global key-value store.
 
@@ -80,23 +80,25 @@ GRIMOIRE> (system-info)
  ("UBUNTU_CODENAME" . "jammy"))
 ```
     
-If you now create another capability to do blind execution of code:
+If you now create another glyph to do blind execution of code:
 
 ```lisp
-(define-capability :blind-exec blind-exec-CVE-2024-9264 (command)
+(define-glyph :blind-exec blind-exec-CVE-2024-9264 (command)
   (send-request-to-vulnerable-server
    (fmt *exploit* command)))
 ```
     
-So now if we check our current capabilities:
+So now if we check our current glyphs:
 ```lisp
-GRIMOIRE> (capability/list)
+GRIMOIRE> (glyph/list)
 (:READ :BLIND-EXEC)
 ```
     
-Running `derivation/list` will yield:
+Now we should check if we have any interesting transmutations to expand our glyphs.
+
+Running `transmutation/list` will yield:
 ```lisp
-GRIMOIRE> (derivation/list)
+GRIMOIRE> (transmutation/list)
 [+] Derivation "LET-THERE-BE-LIGHT"
     Runnable? [YES] (needs :READ, :BLIND-EXEC)
     Needed?   [YES] (provides :EXEC)
@@ -106,13 +108,13 @@ GRIMOIRE> (derivation/list)
     Needed?   [NO] (provides :READ)
 ```
     
-So lets run the first derivation in the REPL:
+So lets run the first transmutation in the REPL:
 ```lisp
-GRIMOIRE> (derivation/run :let-there-be-light)
-[+] Added new capability: :EXEC
+GRIMOIRE> (transmutation/run :let-there-be-light)
+[+] Added new glyph: :EXEC
 ```
 
-So lets test it with the `fake-shell` recipe:
+So lets test it with the `fake-shell` spell:
 ```lisp
 GRIMOIRE> (fake-shell)
 [/usr/share/grafana]$ ls
@@ -135,11 +137,11 @@ In no particular order:
 - [ ] Add an easy way to create POCs and export them so Grimoire can use them.
 - [ ] Add write utilities to Grimoire.
 - [x] Add execute utilities to Grimoire.
-- [ ] Add a more precise way of expressing capabilities and not just `:read`, `:write` and `:execute`.
-- [ ] Add a graph like representation of capabilities and how they can be chained together.
-- [ ] Add a way to easily share capabilities with other users.
-- [ ] Add some kind of database to store loot and other stuff.
+- [ ] Add a more precise way of expressing glyphs and not just `:read`, `:write` and `:execute`.
+- [ ] Add a graph like representation of glyphs and how they can be chained together.
+- [ ] Add a way to easily share glyphs with other users.
+- [x] Add some kind of database to store relics and other stuff.
 - [ ] Add logging.
 - [ ] Add a way to easily create a report of the pentest.
-- [ ] Add some testing maybe.
+- [ ] Add some testing of new glyphs and spells so we can even make transmutations automatic.
 - [x] Add a deployable binary for persistance.
