@@ -160,7 +160,8 @@ You can always run `(info)` to see the state of the system:
     Needed?   [YES] (provides :COMMAND)
 
 ================== <> GLYPHS <> ==================
-                                                                                                                                                                                                [+] Glyph "SIGHT"
+
+[+] Glyph "SIGHT"
     Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
 
 [+] Glyph "SIGHTLESS-COMMAND"
