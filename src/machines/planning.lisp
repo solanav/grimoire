@@ -1,5 +1,3 @@
-(in-package :grimoire)
-
 (defparameter *planning/user* "admin")
 (defparameter *planning/pass* "0D5oT70Fq13EvB5r")
 

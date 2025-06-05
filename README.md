@@ -91,8 +91,11 @@ If you now create another glyph to do blind execution of code:
 So now if we check our current glyphs:
 ```lisp
 GRIMOIRE> (glyph/info)
-[+] Glyph "READ" is available through "#<FUNCTION READ/CVE-2024-9264>"
-[+] Glyph "BLIND-EXEC" is available through "#<FUNCTION BLIND-EXEC/CVE-2024-9264>"
+[+] Glyph "SIGHT"
+Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
+
+[+] Glyph "SIGHTLESS-COMMAND"
+Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
 ```
     
 Now we should check if we have any interesting transmutations to expand our glyphs.
@@ -101,17 +104,18 @@ Running `transmutation/info` will yield:
 ```lisp
 GRIMOIRE> (transmutation/info)
 [+] Transmutation "CAT"
-Runnable? [NO] (needs :EXEC)
-Needed?   [NO] (provides :READ)
+Runnable? [NO] (needs :COMMAND)
+Needed?   [NO] (provides :SIGHT)
+
 [+] Transmutation "LET-THERE-BE-LIGHT"
-Runnable? [YES] (needs :READ, :BLIND-EXEC)
-Needed?   [YES] (provides :EXEC)
+Runnable? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
+Needed?   [YES] (provides :COMMAND)
 ```
     
 So lets run the first transmutation in the REPL:
 ```lisp
 GRIMOIRE> (transmutation/run :let-there-be-light)
-[+] Added new glyph: :EXEC
+[+] Added new glyph: :COMMAND
 ```
 
 So lets test it with the `fake-shell` spell:
