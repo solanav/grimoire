@@ -134,34 +134,33 @@ You can always run `(info)` to see the state of the system:
 ================== ~* SPELLS ~* ==================
 
 [+] Spell "SYSTEM-INFO"
-Runnable? [YES] (needs :SIGHT)
+    Runnable? [YES] (needs :SIGHT)
 
 [+] Spell "ALL-USERS"
-Runnable? [YES] (needs :SIGHT)
+    Runnable? [YES] (needs :SIGHT)
 
 [+] Spell "USERS"
-Runnable? [YES] (needs :SIGHT)
+    Runnable? [YES] (needs :SIGHT)
 
 [+] Spell "FLAG"
-Runnable? [YES] (needs :SIGHT)
+    Runnable? [YES] (needs :SIGHT)
 
 ============== ~> TRANSMUTATIONS ~> ==============
 
 [+] Transmutation "CAT"
-Runnable? [NO] (needs :COMMAND)
-Needed?   [NO] (provides :SIGHT)
+    Runnable? [NO] (needs :COMMAND)
+    Needed?   [NO] (provides :SIGHT)
 
 [+] Transmutation "LET-THERE-BE-LIGHT"
-Runnable? [NO] (needs :SIGHT, :BLIND-EXEC)
-Needed?   [YES] (provides :COMMAND)
+    Runnable? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
+    Needed?   [YES] (provides :COMMAND)
 
 ================== <> GLYPHS <> ==================
-
-[+] Glyph "SIGHT"
-Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
+                                                                                                                                                                                                [+] Glyph "SIGHT"
+    Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
 
 [+] Glyph "SIGHTLESS-COMMAND"
-Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
+    Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
 
 ==================================================
 ```
