@@ -2,6 +2,16 @@
 
 (defvar *glyphs* (make-hash-table :test #'equal))
 
+(defparameter *known-glyphs* 
+  '(:sight
+    :mark
+    :command
+    :sightless-command))
+
+(defun glyph/exists? (glyph &key assert)
+  (let ((res (when (member glyph *known-glyphs*) t)))
+    (when assert (assert res)) res))
+
 (define-condition missing-glyph (error)
   ((glyph :initarg :glyph
           :initform nil
@@ -13,15 +23,21 @@
   (:documentation "System does not have a certain glyph"))
 
 (defmacro define-glyph (glyph name args &body body)
-  "create a function called `name` that provides `glyphs` and takes `args`"
+  "create a function called `name` that provides `glyph` and takes `args`"
   (let ((function-name (create-function-name "~a/~a" glyph name)))
-    `(progn (defun ,function-name ,args ,@body)
+    `(progn (glyph/exists? ,glyph :assert t)
+            (defun ,function-name ,args ,@body)
             (register ,glyph #',function-name))))
 
 (defun glyph/list ()
+  "return a list of glyphs available in the system"
+  (a:hash-table-keys *glyphs*))
+
+(defun glyph/info ()
+  "show information about the glyphs available in the system"
   (loop for glyph being the hash-keys in *glyphs* using (hash-value function)
-        do (out "[+] Glyph \"~a\" is available through \"~a\"~%"
-                glyph function)))
+        do (out "[+] Glyph \"~a\"~%" glyph)
+        do (out "    Provided by \"~a\"~%~%" function)))
 
 (defun glyph/available? (glyph &key do-not-fail)
   "check if the glyph is available, fail otherwise"
@@ -32,7 +48,8 @@
 
 (defmacro glyph/use (glyph &rest args)
   "use the glyph with the args"
-  `(funcall (can? ,glyph) ,@args))
+  `(progn (glyph/exists? ,glyph :assert t)
+          (funcall (can? ,glyph) ,@args)))
 
 (defmacro glyph/add (glyph function)
   "register a function that gives a glyph"

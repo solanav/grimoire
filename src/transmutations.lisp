@@ -18,12 +18,12 @@
               :function #',name)))))
 
 (defun transmutation/runnable? (transmutation)
-  (let ((glyphs (a:hash-table-keys *glyphs*)))
+  (let ((glyphs (glyph/list)))
     (loop for need in (transmutation-needs transmutation)
           always (member need glyphs))))
 
 (defun transmutation/needed? (transmutation)
-  (let ((glyphs (a:hash-table-keys *glyphs*)))
+  (let ((glyphs (glyph/list)))
     (loop for need in (transmutation-provides transmutation)
           never (member need glyphs))))
 
@@ -31,6 +31,9 @@
   (gethash name *transmutations*))
 
 (defun transmutation/list ()
+  (a:hash-table-keys *transmutations*))
+
+(defun transmutation/info ()
   (loop for name being the hash-keys in *transmutations*
         using (hash-value transmutation)
         do (out "[+] Transmutation \"~a\"~%" 
@@ -49,13 +52,13 @@
           do (out "[+] Added new glyph: :~a~%" provides))))
 
 (define-transmutation cat (file)
-    (:exec) (:read)
+    (:command) (:sight)
   "use sighted exec to cat a file"
-  (glyph/use :exec (fmt "cat ~a" file)))
+  (glyph/use :command (fmt "cat ~a" file)))
 
 (define-transmutation let-there-be-light (command)
-    (:read :blind-exec) (:exec)
+    (:sight :sightless-command) (:command)
   "dump output of the command to a tmp file and then read the output"
   (let ((temp-file "/tmp/grimoire.tmp"))
-    (glyph/use :blind-exec (fmt "~a > ~a" command temp-file))
-    (glyph/use :read temp-file)))
+    (glyph/use :sightless-command (fmt "~a > ~a" command temp-file))
+    (glyph/use :sight temp-file)))

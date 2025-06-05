@@ -32,14 +32,6 @@
                                (:file "git")
                                (:file "server")
                                (:file "client")))
-
-                             ;; htb machines
-                             (:module "machines"
-                              :components 
-                              ((:file "titanic")
-                               (:file "linkvortex")
-                               (:file "code")
-                               (:file "planning")))
                              
                              ;; Main
                              (:file "main"))))

@@ -30,11 +30,11 @@ CL-USER> (in-package :grimoire)
     
 ## Concepts
 
-- **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:READ) , blind code execution (:BLIND-EXEC), file uploads (:WRITE), etc.
+- **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:SIGHT) , code executeion (:COMMAND), blind code execution (:SIGHTLESS-COMMAND), file uploads (:MARK), etc.
 
-- **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the spell `download-all` allows the user to download all files in a given remote path if the glyph :EXEC is available to Grimoire.
+- **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the spell `download-all` allows the user to download all files in a given remote path if the glyph :COMMAND is available to Grimoire.
     
-- **Transmutations**: Created using `define-transmutation`. They allow Grimoire to derive new glyphs from already implemented ones. For example, if you have both the :READ and :BLIND-EXEC glyphs, you will be able to derive the :EXEC through a transmutation.
+- **Transmutations**: Created using `define-transmutation`. They allow Grimoire to derive new glyphs from already implemented ones. For example, if you have both the :SIGHT and :SIGHTLESS-COMMAND glyphs, you will be able to derive the :COMMAND through a transmutation.
     
 - **Relics**: Managed through the functions starting with `relic/*`. A basic and global key-value store.
 
@@ -42,10 +42,10 @@ CL-USER> (in-package :grimoire)
 
 Once you have Grimoire loaded, you can start using its utilities. First you should find an entry point to the system you are trying to exploit.
 
-If you find a way of reading files in the remote server for example, you can create a function called `read-CVE-2024-9264` that reads files from the remote server:
+If you find a way of reading files in the remote server for example, you can create a function called `CVE-2024-9264` that reads files from the remote server:
 
 ```lisp
-(define-glyph :read read-CVE-2024-9264 (file)
+(define-glyph :sight CVE-2024-9264 (file)
   (let* ((text (str:replace-all
                 "\\x0A" (fmt "~%")
                 (send-request-to-vulnerable-server
@@ -83,29 +83,29 @@ GRIMOIRE> (system-info)
 If you now create another glyph to do blind execution of code:
 
 ```lisp
-(define-glyph :blind-exec blind-exec-CVE-2024-9264 (command)
+(define-glyph :sightless-command CVE-2024-9264 (command)
   (send-request-to-vulnerable-server
    (fmt *exploit* command)))
 ```
     
 So now if we check our current glyphs:
 ```lisp
-GRIMOIRE> (glyph/list)
-(:READ :BLIND-EXEC)
+GRIMOIRE> (glyph/info)
+[+] Glyph "READ" is available through "#<FUNCTION READ/CVE-2024-9264>"
+[+] Glyph "BLIND-EXEC" is available through "#<FUNCTION BLIND-EXEC/CVE-2024-9264>"
 ```
     
 Now we should check if we have any interesting transmutations to expand our glyphs.
 
-Running `transmutation/list` will yield:
+Running `transmutation/info` will yield:
 ```lisp
-GRIMOIRE> (transmutation/list)
-[+] Derivation "LET-THERE-BE-LIGHT"
-    Runnable? [YES] (needs :READ, :BLIND-EXEC)
-    Needed?   [YES] (provides :EXEC)
-
-[+] Derivation "CAT"
-    Runnable? [NO] (needs :EXEC)
-    Needed?   [NO] (provides :READ)
+GRIMOIRE> (transmutation/info)
+[+] Transmutation "CAT"
+Runnable? [NO] (needs :EXEC)
+Needed?   [NO] (provides :READ)
+[+] Transmutation "LET-THERE-BE-LIGHT"
+Runnable? [YES] (needs :READ, :BLIND-EXEC)
+Needed?   [YES] (provides :EXEC)
 ```
     
 So lets run the first transmutation in the REPL:
@@ -128,20 +128,59 @@ root
 
 [/usr/share/grafana]$ exit
 ```
+    
+You can always run `(info)` to see the state of the system:
+```lisp
+================== ~* SPELLS ~* ==================
+
+[+] Spell "SYSTEM-INFO"
+Runnable? [YES] (needs :SIGHT)
+
+[+] Spell "ALL-USERS"
+Runnable? [YES] (needs :SIGHT)
+
+[+] Spell "USERS"
+Runnable? [YES] (needs :SIGHT)
+
+[+] Spell "FLAG"
+Runnable? [YES] (needs :SIGHT)
+
+============== ~> TRANSMUTATIONS ~> ==============
+
+[+] Transmutation "CAT"
+Runnable? [NO] (needs :COMMAND)
+Needed?   [NO] (provides :SIGHT)
+
+[+] Transmutation "LET-THERE-BE-LIGHT"
+Runnable? [NO] (needs :SIGHT, :BLIND-EXEC)
+Needed?   [YES] (provides :COMMAND)
+
+================== <> GLYPHS <> ==================
+
+[+] Glyph "SIGHT"
+Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
+
+[+] Glyph "SIGHTLESS-COMMAND"
+Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
+
+==================================================
+```
 
 ## Roadmap
 
 In no particular order:
-
+    
+- [ ] Add mark (write) utilities to Grimoire.
 - [ ] Package Grimoire with Lem so it can be used as a standalone tool.
 - [ ] Add an easy way to create POCs and export them so Grimoire can use them.
-- [ ] Add write utilities to Grimoire.
-- [x] Add execute utilities to Grimoire.
-- [ ] Add a more precise way of expressing glyphs and not just `:read`, `:write` and `:execute`.
 - [ ] Add a graph like representation of glyphs and how they can be chained together.
 - [ ] Add a way to easily share glyphs with other users.
-- [x] Add some kind of database to store relics and other stuff.
 - [ ] Add logging.
 - [ ] Add a way to easily create a report of the pentest.
 - [ ] Add some testing of new glyphs and spells so we can even make transmutations automatic.
+    
 - [x] Add a deployable binary for persistance.
+- [x] Add command (exec) utilities to Grimoire.
+- [x] Add sight (read) utilities to Grimoire.
+- [x] Add some kind of database to store relics and other stuff.
+

