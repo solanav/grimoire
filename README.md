@@ -151,10 +151,6 @@ You can always run `(info)` to see the state of the system:
 
 ============== ~> TRANSMUTATIONS ~> ==============
 
-[ ] Transmutation "CAT"
-    Possible? [NO] (needs :COMMAND)
-    Needed?   [NO] (provides :SIGHT)
-
 [+] Transmutation "LET-THERE-BE-LIGHT"
     Possible? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
     Needed?   [YES] (provides :COMMAND)
