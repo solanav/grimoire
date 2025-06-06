@@ -138,25 +138,25 @@ You can always run `(info)` to see the state of the system:
 ================== ~* SPELLS ~* ==================
 
 [+] Spell "SYSTEM-INFO"
-    Runnable? [YES] (needs :SIGHT)
+    Castable? [YES] (needs :SIGHT)
 
 [+] Spell "ALL-USERS"
-    Runnable? [YES] (needs :SIGHT)
+    Castable? [YES] (needs :SIGHT)
 
 [+] Spell "USERS"
-    Runnable? [YES] (needs :SIGHT)
+    Castable? [YES] (needs :SIGHT)
 
 [+] Spell "FLAG"
-    Runnable? [YES] (needs :SIGHT)
+    Castable? [YES] (needs :SIGHT)
 
 ============== ~> TRANSMUTATIONS ~> ==============
 
-[+] Transmutation "CAT"
-    Runnable? [NO] (needs :COMMAND)
+[ ] Transmutation "CAT"
+    Possible? [NO] (needs :COMMAND)
     Needed?   [NO] (provides :SIGHT)
 
 [+] Transmutation "LET-THERE-BE-LIGHT"
-    Runnable? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
+    Possible? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
     Needed?   [YES] (provides :COMMAND)
 
 ================== <> GLYPHS <> ==================
