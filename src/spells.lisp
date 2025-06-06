@@ -27,11 +27,13 @@
 (defun spell/info (&key show-all)
   (loop for spell being the hash-value in *spells*
         for runnable = (spell/runnable? spell)
-        if (and (not show-all) runnable)
-        do (out "[+] Spell \"~a\"~%" (spell-name spell))
-        and do (out "    Runnable? ~a (needs ~{:~a~^, ~})~%~%" 
-                    (yes? runnable)
-                    (spell-needs spell))))
+        for icon = (if runnable "+" " ")
+        if (or runnable show-all)
+        do (progn (out "[~a] Spell \"~a\"~%" 
+                       icon (spell-name spell))
+                  (out "    Castable? ~a (needs ~{:~a~^, ~})~%~%" 
+                       (yes? runnable)
+                       (spell-needs spell)))))
 
 ;; sight
 

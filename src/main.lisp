@@ -26,13 +26,13 @@
           (out "~a ~a ~a~%~%" (tmp (1- left)) title (tmp (1- right)))
           (out "~a~%~%" (tmp length))))))
 
-(defun info ()
+(defun info (&key show-all)
   "show information about the system's current state"
   (separator "~* spells ~*")
-  (spell/info)
+  (spell/info :show-all show-all)
   
   (separator "~> transmutations ~>")
-  (transmutation/info)
+  (transmutation/info :show-all show-all)
 
   (separator "<> glyphs <>")
   (glyph/info)

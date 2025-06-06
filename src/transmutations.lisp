@@ -33,17 +33,19 @@
 (defun transmutation/list ()
   (a:hash-table-keys *transmutations*))
 
-(defun transmutation/info ()
+(defun transmutation/info (&key show-all)
   (loop for name being the hash-keys in *transmutations*
         using (hash-value transmutation)
-        do (out "[+] Transmutation \"~a\"~%" 
-                (transmutation-name transmutation))
-        do (out "    Runnable? ~a (needs ~{:~a~^, ~})~%" 
-                (yes? (transmutation/runnable? transmutation))
-                (transmutation-needs transmutation))
-        do (out "    Needed?   ~a (provides ~{:~a~^, ~})~%~%"
-                (yes? (transmutation/needed? transmutation))
-                (transmutation-provides transmutation))))
+        for runnable = (transmutation/runnable? transmutation)
+        for needed = (transmutation/needed? transmutation)
+        for icon = (if (and runnable needed) "+" " ")
+        if (or needed show-all)
+        do (progn (out "[~a] Transmutation \"~a\"~%" 
+                       icon (transmutation-name transmutation))
+                  (out "    Possible? ~a (needs ~{:~a~^, ~})~%" 
+                       (yes? runnable) (transmutation-needs transmutation))
+                  (out "    Needed?   ~a (provides ~{:~a~^, ~})~%~%"
+                       (yes? needed) (transmutation-provides transmutation)))))
 
 (defun transmutation/run (name)
   (let ((transmutation (gethash (string-upcase name) *transmutations*)))
