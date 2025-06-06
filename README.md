@@ -92,10 +92,10 @@ So now if we check our current glyphs:
 ```lisp
 GRIMOIRE> (glyph/info)
 [+] Glyph "SIGHT"
-Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
+    Provided by "#<FUNCTION SIGHT/CVE-2024-9264>"
 
 [+] Glyph "SIGHTLESS-COMMAND"
-Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
+    Provided by "#<FUNCTION SIGHTLESS-COMMAND/CVE-2024-9264>"
 ```
     
 Now we should check if we have any interesting transmutations to expand our glyphs.
@@ -104,12 +104,12 @@ Running `transmutation/info` will yield:
 ```lisp
 GRIMOIRE> (transmutation/info)
 [+] Transmutation "CAT"
-Runnable? [NO] (needs :COMMAND)
-Needed?   [NO] (provides :SIGHT)
+    Runnable? [NO] (needs :COMMAND)
+    Needed?   [NO] (provides :SIGHT)
 
 [+] Transmutation "LET-THERE-BE-LIGHT"
-Runnable? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
-Needed?   [YES] (provides :COMMAND)
+    Runnable? [YES] (needs :SIGHT, :SIGHTLESS-COMMAND)
+    Needed?   [YES] (provides :COMMAND)
 ```
     
 So lets run the first transmutation in the REPL:
