@@ -3,7 +3,8 @@
   :author "Antonio Solana"
   :license "AGPL"
   :depends-on ("usocket"
-               "trivial-utf-8")
+               "trivial-utf-8"
+               "com.inuoe.jzon")
   :components ((:module "src"
                 :components
                 ((:file "main"))))

