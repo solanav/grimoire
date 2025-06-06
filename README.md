@@ -30,7 +30,7 @@ CL-USER> (in-package :grimoire)
     
 ## Concepts
 
-- **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:SIGHT) , code executeion (:COMMAND), blind code execution (:SIGHTLESS-COMMAND), file uploads (:MARK), etc.
+- **Glyphs**: Created using `define-glyph`. They expose some type of operation to the framework such as reading files (:SIGHT) , code execution (:COMMAND), blind code execution (:SIGHTLESS-COMMAND), file uploads (:MARK), etc.
 
 - **Spells**: Created using `define-spell`. They use the glyphs available to do interesting or useful operations on the objective. For example, the spell `download-all` allows the user to download all files in a given remote path if the glyph :COMMAND is available to Grimoire.
     
