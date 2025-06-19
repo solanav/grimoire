@@ -6,6 +6,7 @@
                "serapeum"
                "str"
                "zip"
+               "sqlite"
                "trivial-utf-8"
                "ironclad"
                "dexador"
@@ -29,6 +30,7 @@
                              (:module "modules"
                               :components 
                               ((:file "bytes")
+                               (:file "sqlite3")
                                (:file "git")
                                (:file "server")
                                (:file "client")))

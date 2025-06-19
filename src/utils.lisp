@@ -56,3 +56,11 @@
 
 (defun yes? (bool)
   (if bool "[YES]" "[NO]"))
+
+;; hashes
+
+(defun bytes-sha256 (buff)
+  (bytes->hex (ironclad:digest-sequence :sha256 buff)))
+
+(defun string-sha256 (string)
+  (bytes-sha256 (trivial-utf-8:string-to-utf-8-bytes string)))
