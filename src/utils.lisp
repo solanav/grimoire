@@ -43,6 +43,19 @@
 (defmacro create-function-name (control-string &rest format-arguments)
   `(intern (string-upcase (fmt ,control-string ,@format-arguments))))
 
+(defun parse-body (body)
+  "parse the body of a function into its parts (for macros that respect docstrings)"
+  (multiple-value-bind (docstring decls/forms)
+      (if (stringp (first body))
+          (values (first body) (rest body))
+          (values nil body))
+    (loop for remainder on decls/forms
+          while (and (not (null remainder))
+                     (consp (first remainder))
+                     (eql (car (first remainder)) 'declare))
+          collect (first remainder) into decls
+          finally (return (values docstring decls remainder)))))
+
 (defun prompt (message)
   (out "~a:~%>>> " message)
   (force-output)
@@ -52,7 +65,7 @@
   "parse line separated string with key=value into a list of cons"
   (loop for line in (str:lines text)
         for (head . tail) = (str:split "=" line)
-        collect (cons head (str:join "=" tail))))
+        collect (cons head (str:trim (str:join "=" tail) :char-bag "'"))))
 
 (defun yes? (bool)
   (if bool "[YES]" "[NO]"))

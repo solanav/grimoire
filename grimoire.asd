@@ -12,7 +12,8 @@
                "dexador"
                "com.inuoe.jzon"
                "hunchentoot"
-               "easy-routes")
+               "easy-routes"
+               "lparallel")
   :components ((:module "src"
                 :serial t
                 :components ((:file "package")
