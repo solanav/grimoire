@@ -138,15 +138,19 @@ You can always run `(info)` to see the state of the system:
 ================== ~* SPELLS ~* ==================
 
 [+] Spell "SYSTEM-INFO"
+    Description: "read system information"
     Castable? [YES] (needs :SIGHT)
 
 [+] Spell "ALL-USERS"
+    Description: "list all the users from /etc/passwd"
     Castable? [YES] (needs :SIGHT)
 
 [+] Spell "USERS"
+    Description: "list the users that are not default"
     Castable? [YES] (needs :SIGHT)
 
 [+] Spell "FLAG"
+    Description: "try to read the flag from user home folders"
     Castable? [YES] (needs :SIGHT)
 
 ============== ~> TRANSMUTATIONS ~> ==============
